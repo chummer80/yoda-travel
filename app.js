@@ -65,7 +65,7 @@ app.get('/', function(req, res){
 
 // Handle the form POST containing the question to ask Watson and reply with the answer
 app.post('/', function(req, res){
-  var parts = url.parse(service_url +'/v1/question/'+req.body.dataset);
+  var parts = url.parse(service_url +'/v1/question/travel');
   var options = {
     host: parts.hostname,
     port: parts.port,
@@ -90,8 +90,22 @@ app.post('/', function(req, res){
 
     result.on('end', function() {
       var answers = JSON.parse(response_string)[0];
-      var response = extend({ 'answers': answers },req.body);
-      return res.render('index', response);
+
+
+      // var yodaOptions = {
+      //   hostname: 'yoda.p.mashape.com',
+      //   path: '/yoda',
+      //   method: 'GET', 
+      //   sentence: answers.question.evidencelist[0].text
+      // };
+      // var yodaReq = https.get(yodaOptions, function(result) {
+      //   debugger;
+
+        var response = extend({ 'answers': answers },req.body);
+        return res.render('index', response);
+      // });
+      
+
     });
   });
 
@@ -103,14 +117,16 @@ app.post('/', function(req, res){
   var questionData = {
     'question': {
       'evidenceRequest': {
-        'items': 5 // the number of anwers
+        'items': 2 // the number of anwers
       },
+      'items': 1,
       'questionText': req.body.questionText // the question
     }
   };
 
   // Set the POST body and send to Watson
   watson_req.write(JSON.stringify(questionData));
+  // debugger;
   watson_req.end();
 
 });

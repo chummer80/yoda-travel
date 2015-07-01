@@ -1,6 +1,10 @@
 /* style.css
  * This file provides css styles.
  */
+body {
+	background-color: grey;
+}
+
 .feedback {
     text-decoration: none;
     margin: 5px;

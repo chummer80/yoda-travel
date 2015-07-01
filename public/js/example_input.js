@@ -20,7 +20,7 @@ var examples = {
 };
 
 function loadExample() {
-  var corpus = $("#select").val();
+  var corpus = "travel";//$("#select").val();
   var index = Math.floor(Math.random() * examples[corpus].length);
   $('#questionText').val(examples[corpus][index]);
 }
