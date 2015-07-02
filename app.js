@@ -91,21 +91,36 @@ app.post('/', function(req, res){
     result.on('end', function() {
       var answers = JSON.parse(response_string)[0];
 
+      var escapedText = escape(answers.question.evidencelist[0].text);
+      var yodaOptions = {
+        hostname: 'yoda.p.mashape.com',
+        path: '/yoda?sentence=' + escapedText,
+        method: 'GET', 
+        headers: {
+          'Content-Type'  :'application/json',
+          'X-Mashape-Key': 'RdVcfQ4XRHmshpx3q654uMVp8yIOp1LZfGhjsnvqOzQLgboIlp'
+        }
+      };
+      var yodaReq = https.request(yodaOptions, function(yodaResult) {
+        yodaResult.setEncoding('utf-8');
+        var yodaResponseString = '';
 
-      // var yodaOptions = {
-      //   hostname: 'yoda.p.mashape.com',
-      //   path: '/yoda',
-      //   method: 'GET', 
-      //   sentence: answers.question.evidencelist[0].text
-      // };
-      // var yodaReq = https.get(yodaOptions, function(result) {
-      //   debugger;
+        yodaResult.on('data', function(chunk) {
+          yodaResponseString += chunk;
+        });
 
-        var response = extend({ 'answers': answers },req.body);
-        return res.render('index', response);
-      // });
+        yodaResult.on('end', function() {
+          answers.question.evidencelist[0].text = yodaResponseString;
+
+          var response = extend({ 'answers': answers },req.body);
+          return res.render('index', response);
+        });
+      });
+      yodaReq.on('error', function(e) {
+        return res.render('index', {'error': "Yoda is sleeping: " + e.message});
+      });
       
-
+      yodaReq.end();
     });
   });
 
@@ -117,7 +132,7 @@ app.post('/', function(req, res){
   var questionData = {
     'question': {
       'evidenceRequest': {
-        'items': 2 // the number of anwers
+        'items': 1 // the number of anwers
       },
       'items': 1,
       'questionText': req.body.questionText // the question
